@@ -32,8 +32,13 @@ def compute_traj_coeffs(initial_state, final_state, tf):
 
     Hint: Use the np.linalg.solve function.
     """
-    ########## Code starts here ##########
+    #solving Ax = b where x is the coeff vector of xi and yi 
 
+    coeff_mat = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [1, tf, tf**2, tf**3], [0, 1, 2*tf, 3*(tf**2)]])
+    A = np.block([[coeff_mat, np.zeros((4,4), int)], [np.zeros((4,4), int), coeff_mat]])
+    b = np.array([0, 0, 5, 0, 0, -.5, 5, -.5]).T
+    coeffs = linalg.solve(A,b)
+    
     ########## Code ends here ##########
     return coeffs
 
