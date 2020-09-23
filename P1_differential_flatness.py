@@ -118,11 +118,13 @@ def compute_controls(traj):
     # Find velocity with V = x'/cos(theta)
     V  = traj[:,3] / np.cos((traj[:,2]))
 
-    # Find w using Jacobian, V, and traj matrix
+    N = np.shape(V)[0] #for om vec later
+
+    # Find om using Jacobian, V, and traj matrix
     theta_vec = traj[:,2]
     xddot_vec = traj[:,5]
     yddot_vec = traj[:,6]
-    om = np.zeros((N,1))
+    om = np.zeros((N,))
     for i in range(N):
         xddot = xddot_vec[i]
         yddot = yddot_vec[i]
@@ -150,7 +152,7 @@ def compute_arc_length(V, t):
     """
     s = None
     ########## Code starts here ##########
-
+    s = cumtrapz(V,t, initial = 0)
     ########## Code ends here ##########
     return s
 
@@ -171,7 +173,11 @@ def rescale_V(V, om, V_max, om_max):
     Hint: This should only take one or two lines.
     """
     ########## Code starts here ##########
-
+    
+    om_constraint = np.multiply((om_max/om), V)
+    candidate_min = np.minimum(V_max, np.abs(om_constraint))
+    temp = np.minimum(np.abs(V), candidate_min)
+    V_tilde = np.multiply(np.sign(V), temp)
     ########## Code ends here ##########
     return V_tilde
 
@@ -188,7 +194,7 @@ def compute_tau(V_tilde, s):
     Hint: Use the function cumtrapz. This should take one line.
     """
     ########## Code starts here ##########
-
+    tau =  cumtrapz((1/V_tilde),s, initial = 0)
     ########## Code ends here ##########
     return tau
 
@@ -205,7 +211,8 @@ def rescale_om(V, om, V_tilde):
     Hint: This should take one line.
     """
     ########## Code starts here ##########
-
+    temp = np.multiply((1/V), V_tilde)
+    om_tilde = np.multiply(om, temp)
     ########## Code ends here ##########
     return om_tilde
 
