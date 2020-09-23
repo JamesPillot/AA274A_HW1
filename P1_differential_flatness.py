@@ -32,13 +32,14 @@ def compute_traj_coeffs(initial_state, final_state, tf):
 
     Hint: Use the np.linalg.solve function.
     """
+    ########## Code starts here ##########
     #solving Ax = b where x is the coeff vector of xi and yi 
 
     coeff_mat = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [1, tf, tf**2, tf**3], [0, 1, 2*tf, 3*(tf**2)]])
     A = np.block([[coeff_mat, np.zeros((4,4), int)], [np.zeros((4,4), int), coeff_mat]])
     b = np.array([0, 0, 5, 0, 0, -.5, 5, -.5]).T
     coeffs = linalg.solve(A,b)
-    
+
     ########## Code ends here ##########
     return coeffs
 
@@ -56,6 +57,50 @@ def compute_traj(coeffs, tf, N):
     traj = np.zeros((N,7))
     ########## Code starts here ##########
 
+    #Multiplying Vandermonde matrix by coeff vector to get x and y trajectories
+
+    # Build Vandermonde matrix
+    ones_vec = np.ones(N, int)
+    pos_Vandermonde =  np.column_stack((ones_vec, t, t**2, t**3))
+
+    # x trajectory
+    x_coeffs = coeffs[0:4]
+    x_traj = np.matmul(pos_Vandermonde, x_coeffs)
+
+    # y trajectory
+    y_coeffs = coeffs[4:]
+    y_traj = np.matmul(pos_Vandermonde, y_coeffs)
+
+    #Multiplying modified Vandermonde matrix by coeff vector to get x' and y' trajectories
+
+    # Build new Vandermonde matrix
+    zeroes_vec = np.zeros(N, int)
+    vel_Vandermonde = np.column_stack((zeroes_vec, ones_vec, 2*t, 3*(t**2)))
+
+    # x' trajectory
+    x_dot_traj = np.matmul(vel_Vandermonde, x_coeffs)
+
+    # y' trajectory 
+    y_dot_traj = np.matmul(vel_Vandermonde, y_coeffs)
+
+    # Use x' and y' to compute theta trajectory,  theta = arctan(y'/x')
+    theta_traj = np.arctan2(y_dot_traj, x_dot_traj)
+
+
+    #Multiplying modified Vandermonde matrix by coeff vector to get x'' and y'' trajectories
+
+    # Build new new Vandermonde matrix
+    twos_vec = 2*ones_vec
+    accel_Vandermonde = np.column_stack((zeroes_vec, zeroes_vec, twos_vec, 6*t))
+
+    # x'' trajectory
+    x_ddot_traj = np.matmul(accel_Vandermonde, x_coeffs)
+
+    # y'' trajectory
+    y_ddot_traj = np.matmul(accel_Vandermonde, y_coeffs)
+
+    # concatentate trajectories into output traj matrix
+    traj = np.column_stack((x_traj, y_traj, theta_traj, x_dot_traj, y_dot_traj, x_ddot_traj, y_ddot_traj))
     ########## Code ends here ##########
 
     return t, traj
@@ -70,6 +115,23 @@ def compute_controls(traj):
     """
     ########## Code starts here ##########
 
+    # Find velocity with V = x'/cos(theta)
+    V  = traj[:,3] / np.cos((traj[:,2]))
+
+    # Find w using Jacobian, V, and traj matrix
+    theta_vec = traj[:,2]
+    xddot_vec = traj[:,5]
+    yddot_vec = traj[:,6]
+    om = np.zeros((N,1))
+    for i in range(N):
+        xddot = xddot_vec[i]
+        yddot = yddot_vec[i]
+        theta = theta_vec[i]
+        v_scalar = V[i]
+        b = np.array([xddot, yddot])
+        J = np.array([[np.cos(theta), -v_scalar*np.sin(theta)], [np.sin(theta), v_scalar*np.cos(theta)]])
+        u = linalg.solve(J,b)
+        om[i] = u[1]
     ########## Code ends here ##########
 
     return V, om
