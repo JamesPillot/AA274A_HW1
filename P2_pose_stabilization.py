@@ -34,7 +34,19 @@ class PoseController:
         may also be useful, look up its documentation
         """
         ########## Code starts here ##########
+        # pull out gains
+        k1 = self.k1
+        k2 = self.k2
+        k3 = self.k2
+
+        phro = np.sqrt((x**2) + (y**2))
+        alpha = np.arctan2(y,x) - th + np.pi
+        alpha_wrapped = wrapToPi(alpha)
+        delta = alpha + th
+        delta_wrapped = wrapToPi(delta)
         
+        V = k1*phro*np.cos(alpha_wrapped)
+        om = (k2*alpha_wrapped) + (k1*np.sinc(alpha_wrapped)*np.cos(alpha_wrapped)*(alpha + (k3*delta_wrapped)))
         ########## Code ends here ##########
 
         # apply control limits
