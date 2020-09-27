@@ -37,7 +37,11 @@ def compute_traj_coeffs(initial_state, final_state, tf):
 
     coeff_mat = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [1, tf, tf**2, tf**3], [0, 1, 2*tf, 3*(tf**2)]])
     A = np.block([[coeff_mat, np.zeros((4,4), int)], [np.zeros((4,4), int), coeff_mat]])
-    b = np.array([0, 0, 5, 0, 0, -.5, 5, -.5]).T
+
+    x0, y0, xd0, yd0 = initial_state.x, initial_state.y, initial_state.xd, initial_state.yd
+    xf, yf, xdf, ydf = final_state.x, final_state.y, final_state.xd, final_state.yd
+
+    b = np.array([x0, xd0, xf, xdf, y0, yd0, yf, ydf])
     coeffs = linalg.solve(A,b)
 
     ########## Code ends here ##########
@@ -281,7 +285,7 @@ if __name__ == "__main__":
     # Initial conditions
     s_0 = State(x=0, y=0, V=V_max, th=-np.pi/2)
 
-    # Final conditions
+    # Final conditons
     s_f = State(x=5, y=5, V=V_max, th=-np.pi/2)
 
     coeffs = compute_traj_coeffs(initial_state=s_0, final_state=s_f, tf=tf)
