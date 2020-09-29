@@ -58,17 +58,17 @@ def bc_fun(za, zb):
     xb, yb, thb, p1b, p2b, p3b, rb = zb
 
     # left boundary conditions
-    bca = np.array([za[0]-x0[0], za[1]-x0[1], za[2]-x0[2]])
+    bca = np.array([x0[0] - za[0], x0[1] - za[1], x0[2] - za[2]])
 
     # condition for tf
-    L = .1 #for lambda
+    L = .325 #for lambda
     Vb = (-1*p1b*np.cos(thb) - p2b*np.sin(thb))/2
     omb = (-1*p3b)/2
 
     H_f = L + Vb**2 + omb**2 + p1b*Vb*np.cos(thb) + p2b*Vb*np.sin(thb) + p3b*omb
 
     # right boundary conditions
-    bcb = np.array([zb[0]-xf[0], zb[1]-xf[1], zb[2]-xf[2], H_f])   
+    bcb = np.array([xf[0] - zb[0], xf[1] - zb[1], xf[2] - zb[2], H_f])   
     ########## Code ends here ##########
     return (bca, bcb)
 
