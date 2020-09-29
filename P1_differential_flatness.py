@@ -120,7 +120,10 @@ def compute_controls(traj):
     ########## Code starts here ##########
 
     # Find velocity with V = x'/cos(theta)
-    V  = traj[:,3] / np.cos((traj[:,2]))
+    cos_th = np.cos((traj[:,2]))
+    cos_th_mod = np.where(cos_th == 0, .0001, cos_th)
+    
+    V  = traj[:,3] / cos_th_mod
 
     N = np.shape(V)[0] #for om vec later
 
