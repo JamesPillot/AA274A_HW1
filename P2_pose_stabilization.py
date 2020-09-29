@@ -42,7 +42,7 @@ class PoseController:
         phro = np.sqrt((x**2) + (y**2))
         alpha = np.arctan2(y,x) - th + np.pi
         alpha_wrapped = wrapToPi(alpha)
-        delta = alpha + th
+        delta = alpha_wrapped + th
         delta_wrapped = wrapToPi(delta)
         
         V = k1*phro*np.cos(alpha_wrapped)
