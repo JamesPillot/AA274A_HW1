@@ -46,7 +46,7 @@ class PoseController:
         delta_wrapped = wrapToPi(delta)
         
         V = k1*phro*np.cos(alpha_wrapped)
-        om = (k2*alpha_wrapped) + (k1*np.sinc(alpha_wrapped)*np.cos(alpha_wrapped)*(alpha_wrapped + (k3*delta_wrapped)))
+        om = (k2*alpha_wrapped) + (k1*np.sinc((alpha_wrapped/np.pi))*np.cos(alpha_wrapped)*(alpha_wrapped + (k3*delta_wrapped)))
         ########## Code ends here ##########
 
         # apply control limits
